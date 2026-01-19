@@ -1,0 +1,8 @@
+.ruff_cache
+.venv
+build/
+dist/
+wheels/
+*.egg-info
+*.py[oc]
+__pycache__/

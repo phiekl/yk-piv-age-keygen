@@ -1,0 +1,20 @@
+[project]
+name = "yk-piv-age-keygen"
+version = "0.1.0"
+description = "YubiKey PIV key generator compatible with age-plugin-yubikey"
+readme = "README.md"
+authors = [
+    { name = "Philip Eklöf", email = "phi@pxy.se" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "cryptography==43.0.0",
+    "yubikey-manager==5.8.0",
+]
+
+[project.scripts]
+yk-piv-age-keygen = "yk_piv_age_keygen:cli.main"
+
+[build-system]
+requires = ["uv_build>=0.9.26,<0.10.0"]
+build-backend = "uv_build"
