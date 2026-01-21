@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: MIT
 #
 # ruff: noqa: TRY400 # Use `logging.exception` instead of `logging.error`
+# ruff: noqa: EXE001 # Shebang is present but file is not executable
 
 """yubikey-age-keygen module."""
 

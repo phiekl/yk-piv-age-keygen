@@ -1,0 +1,1 @@
+"""yubikey-age-keygen package."""
