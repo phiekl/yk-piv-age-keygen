@@ -355,11 +355,35 @@ class Keygen:
             raise KeygenError(msg)
 
         try:
+            self.session.get_slot_metadata(self.slot)
+            if not self.force:
+                msg = (
+                    f"PIV slot {self.slot:X} (RETIRED{slotnum(self.slot)})"
+                    " already contains a key."
+                )
+                raise KeygenError(msg)
+            self.log.info(
+                "Existing key in PIV slot %X (RETIRED%d) will be replaced.",
+                self.slot,
+                slotnum(self.slot),
+            )
+        except YubiKeyApduError as e:
+            if e.sw == YUBIKEY_STATUS_WORD.REFERENCE_DATA_NOT_FOUND:
+                self.log.info(
+                    "No existing key found in PIV slot %X (RETIRED%d).",
+                    self.slot,
+                    slotnum(self.slot),
+                )
+            else:
+                msg = f"Failed reading key in PIV slot {self.slot:X}: {e.sw}"
+                raise KeygenError(msg) from e
+
+        try:
             self.session.get_certificate(self.slot)
             if not self.force:
                 msg = (
                     f"PIV slot {self.slot:X} (RETIRED{slotnum(self.slot)})"
-                    " already contains a key+certificate."
+                    " already contains a certificate."
                 )
                 raise KeygenError(msg)
             self.log.info(
@@ -376,7 +400,7 @@ class Keygen:
                     slotnum(self.slot),
                 )
             else:
-                msg = f"Failed reading certificate: {e.sw}"
+                msg = f"Failed reading certificate in PIV slot {self.slot:X}: {e.sw}"
                 raise KeygenError(msg) from e
 
     def get_device(self) -> None:
