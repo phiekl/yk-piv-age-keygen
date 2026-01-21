@@ -492,7 +492,11 @@ class Keygen:
             msg = "get_session: Session already exists."
             raise KeygenError(msg)
 
-        self.session = YubiKeyPivSession(self.device.smart_card())
+        try:
+            self.session = YubiKeyPivSession(self.device.smart_card())
+        except ValueError as e:
+            msg = f"Failed establishing PIV session (pcscd not running?): {e}"
+            raise KeygenError(msg) from e
 
     def main(self) -> None:
         """Execute the main workflow."""
