@@ -46,6 +46,18 @@ If you're not on Debian 13, use [uv](https://github.com/astral-sh/uv) and run
 `uv run yk-piv-age-keygen --help` (in the repo root), which should generate a
 venv for you with a fully working set of dependencies to execute the command.
 
+### On NixOS
+
+Use the included `flake.nix` to enter a development shell with all dependencies:
+
+```bash
+nix develop
+uv run yk-piv-age-keygen --help
+```
+
+This provides `pcsclite`, `yubikey-manager`, `pkg-config`, and `swig` with proper
+environment variables configured for compilation.
+
 Just make sure that pcscd.service is running. If `ykman piv info` works, so
 should this.
 
