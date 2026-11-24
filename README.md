@@ -55,7 +55,7 @@ should this.
 $ yk-piv-age-keygen --help
 usage: yk-piv-age-keygen [-h] [-v] [-q] [-S <num>] -s {1..20} [-p <pin>]
                          [-m <key>] [-P {never,once,always}]
-                         [-T {never,always,cached}] [--force]
+                         [-T {never,always,cached}] [-n <name>] [--force]
 
 options:
   -h, --help            show this help message and exit
@@ -71,6 +71,7 @@ options:
                         new PIN policy for slot (default: once)
   -T, --touch-policy {never,always,cached}
                         new touch policy for slot (default: always)
+  -n, --name <name>     identity name stored in the certificate (default: 'age identity {tag}')
   --force               force replacement of currently existing
                         key/certificate in slot
 ```
