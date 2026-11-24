@@ -103,6 +103,13 @@ def arg_parse() -> argparse.Namespace:
         help="new touch policy for slot (default: always)",
     )
     parser.add_argument(
+        "-n",
+        "--name",
+        default="age identity {tag}",
+        help="identity name stored in the certificate (default: '%(default)s')",
+        metavar="<name>",
+    )
+    parser.add_argument(
         "--force",
         action="store_true",
         default=False,
@@ -183,6 +190,7 @@ class Keygen:
         pin_policy: str = "cached",
         touch_policy: str = "always",
         force: bool = False,  # noqa: FBT001,FBT002 # booelan in function definition
+        name: str = "age identity {tag}",
     ) -> None:
         """Initialize options for key generation."""
         if not isinstance(force, bool):
@@ -264,6 +272,22 @@ class Keygen:
             case _:
                 msg = f"Unknown touch policy {touch_policy!r}."
                 raise KeygenError(msg)
+
+        if not isinstance(name, str):
+            msg = "Non-string name provided."
+            raise KeygenError(msg)
+        name = name.strip()
+        # The name is stored as the certificate's CN, limited to 64 chars once
+        # {tag} is expanded (8 hex chars). Checked now, before touching the YubiKey.
+        if not name or len(name.replace("{tag}", "0" * 8)) > 64:  # noqa: PLR2004
+            msg = "Name must be 1-64 characters long ({tag} counts as 8) and not blank."
+            raise KeygenError(msg)
+        # It's printed by age-plugin-yubikey --list and as a comment line in
+        # --identity output, where e.g. a newline could inject identity lines.
+        if not name.isprintable():
+            msg = "Name must not contain control or non-printable characters."
+            raise KeygenError(msg)
+        self.name = name
 
         self.authenticated: bool = False
         self.crt: x509.Certificate | None = None
@@ -450,7 +474,8 @@ class Keygen:
                 x509.NameAttribute(NameOID.ORGANIZATIONAL_UNIT_NAME, "0.5.0"),
                 x509.NameAttribute(
                     NameOID.COMMON_NAME,
-                    f"age identity {self._pubkey_tag()}",
+                    # str.replace, not str.format: other braces in the name stay as-is
+                    self.name.replace("{tag}", self._pubkey_tag()),
                 ),
             ],
         )
@@ -562,6 +587,7 @@ def main() -> None:
             opts.pin_policy,
             opts.touch_policy,
             opts.force,
+            opts.name,
         ).main()
         raise SystemExit
     except KeygenDeviceSelectionError as e:
